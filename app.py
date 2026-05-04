@@ -7,8 +7,8 @@ app.secret_key = "phase3_secret_key"
 def get_connection():
     return psycopg2.connect(
         dbname="cse412_group_project",
-        user="postgres",
-        password="postgres",
+        user="<your_postgres_user>",
+        password="<your_postgres_password>",
         host="localhost",
         port="5432"
     )
