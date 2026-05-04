@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f5f5f5;
+        }
+
+        h1, h2 {
+            color: #222;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            background-color: white;
+        }
+
+        .success {
+            border-left: 6px solid green;
+        }
+
+        .error {
+            border-left: 6px solid red;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #eaeaea;
+        }
+
+        form {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #ccc;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            width: 240px;
+        }
+
+        button {
+            padding: 8px 14px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ride Sharing Database Application</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h2>All Rides</h2>
+
+    <table>
+        <tr>
+            <th>Ride ID</th>
+            <th>Passenger ID</th>
+            <th>Driver ID</th>
+            <th>Pickup</th>
+            <th>Dropoff</th>
+            <th>Request Time</th>
+            <th>Status</th>
+            <th>Fare</th>
+            <th>Distance</th>
+            <th>Duration</th>
+        </tr>
+
+        {% for ride in rides %}
+        <tr>
+            <td>{{ ride[0] }}</td>
+            <td>{{ ride[1] }}</td>
+            <td>{{ ride[2] }}</td>
+            <td>{{ ride[3] }}</td>
+            <td>{{ ride[4] }}</td>
+            <td>{{ ride[5] }}</td>
+            <td>{{ ride[6] }}</td>
+            <td>{{ ride[7] }}</td>
+            <td>{{ ride[8] }}</td>
+            <td>{{ ride[9] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Create New Ride</h2>
+
+    <form action="/add_ride" method="POST">
+        <select name="passenger_id" required>
+            <option value="">Select Passenger</option>
+            {% for passenger in passengers %}
+                <option value="{{ passenger[0] }}">
+                    {{ passenger[0] }} - {{ passenger[1] }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="driver_id">
+            <option value="">No Driver Yet</option>
+            {% for driver in drivers %}
+                <option value="{{ driver[0] }}">
+                    {{ driver[0] }} - {{ driver[1] }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br>
+
+        <input type="text" name="pickup" placeholder="Pickup Location" required>
+        <input type="text" name="dropoff" placeholder="Dropoff Location" required>
+
+        <br>
+
+        <select name="status" required>
+            <option value="Requested">Requested</option>
+            <option value="Accepted">Accepted</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <input type="number" step="0.01" name="fare" placeholder="Total Fare" required>
+        <input type="number" step="0.01" name="distance" placeholder="Distance" required>
+        <input type="number" name="duration" placeholder="Duration in minutes" required>
+
+        <br>
+
+        <button type="submit">Add Ride</button>
+    </form>
+
+    <h2>Update Ride Status</h2>
+
+    <form action="/update_ride" method="POST">
+        <select name="ride_id" required>
+            <option value="">Select Ride</option>
+            {% for ride_id in ride_ids %}
+                <option value="{{ ride_id[0] }}">
+                    Ride {{ ride_id[0] }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="driver_id">
+            <option value="">No Driver</option>
+            {% for driver in drivers %}
+                <option value="{{ driver[0] }}">
+                    {{ driver[0] }} - {{ driver[1] }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="new_status" required>
+            <option value="Requested">Requested</option>
+            <option value="Accepted">Accepted</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <button type="submit">Update Ride</button>
+    </form>
+
+    <h2>Delete Ride</h2>
+
+    <form action="/delete_ride" method="POST">
+        <select name="ride_id" required>
+            <option value="">Select Ride</option>
+            {% for ride_id in ride_ids %}
+                <option value="{{ ride_id[0] }}">
+                    Ride {{ ride_id[0] }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Delete Ride</button>
+    </form>
+
+    <h2>Create New User</h2>
+
+    <form action="/add_user" method="POST">
+
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+
+        <br>
+
+        <input type="text" name="phone" placeholder="Phone" required>
+        <input type="text" name="password" placeholder="Password" required>
+
+        <br>
+
+        <select name="usertype" id="usertype" required onchange="toggleDriverFields()">
+            <option value="">Select User Type</option>
+            <option value="Passenger">Passenger</option>
+            <option value="Driver">Driver</option>
+        </select>
+
+        <div id="driverFields" style="display:none;">
+            <input type="text" name="vehicle_type" placeholder="Vehicle Type">
+            <input type="text" name="vehicle_model" placeholder="Vehicle Model">
+
+            <br>
+
+            <input type="text" name="license_plate" placeholder="License Plate">
+
+            <select name="online_status">
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+            </select>
+        </div>
+
+        <br>
+
+        <button type="submit">Create User</button>
+
+    </form>
+
+    <script>
+    function toggleDriverFields() {
+        var type = document.getElementById("usertype").value;
+        var fields = document.getElementById("driverFields");
+
+        if (type === "Driver") {
+            fields.style.display = "block";
+        } else {
+            fields.style.display = "none";
+        }
+    }
+    </script>
+</body>
+</html>
